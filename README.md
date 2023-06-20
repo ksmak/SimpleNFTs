@@ -1,0 +1,2 @@
+# SimpleNFTs
+Simple NFTs
