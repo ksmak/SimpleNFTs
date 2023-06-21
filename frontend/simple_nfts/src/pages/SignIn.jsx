@@ -1,13 +1,40 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/Layout";
 import Button from "../components/UI/Button"
 import Form from "../components/UI/Form";
-import Error from "../components/UI/Error";
+import ErrorMessage from "../components/UI/ErrorMessage";
+import { getUser, login, getPublicAddress } from '../api/metamask/index'
 
 const SignIn = () => {
+    const navigate = useNavigate();
+
     const [error, setError] = useState(null);
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        const publicAddress = await getPublicAddress();
+        getUser(publicAddress)
+            .then(resp => {
+                console.log(resp);
+                sessionStorage.setItem('username', resp.data.user.username);
+                sessionStorage.setItem('public_address', publicAddress);
+                login(resp.data.nonce, resp.data.public_address)
+                    .then(resp => {
+                        console.log(resp);
+                        sessionStorage.setItem('access', resp.data.access);
+                        sessionStorage.setItem('refresh', resp.data.refresh);
+                        navigate('/');
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        setError('Error!');
+                    })
+            })
+            .catch(err => {
+                console.log(err);
+                setError('Error!');
+            });
+
     }
     return (
         <Layout>
@@ -15,9 +42,9 @@ const SignIn = () => {
                 <div className="p-5 flex justify-center">
                     <Button type="Submit">Connect Metamask</Button>
                 </div>
-                <Error>
+                <ErrorMessage>
                     {error}
-                </Error>
+                </ErrorMessage>
             </Form>
         </Layout>
     );

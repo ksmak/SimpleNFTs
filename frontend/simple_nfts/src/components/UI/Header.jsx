@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom'
 import Logo from './Logo';
+import { useEffect, useState } from 'react';
 
 const Header = () => {
+    const [username, setUsername] = useState(null);
+
+    useEffect(() => {
+        setUsername(sessionStorage.getItem('username'));
+    }, []);
+
     return (
         <div className="h-20 bg-sky-700 text-white flex flex-row items-center">
             <div className="ml-10 flex flex-row items-center justify-center">
@@ -16,13 +23,17 @@ const Header = () => {
                 <Link className="p-5" to="/signin">Sign In</Link>
                 <Link className="p-5" to="/signup">Sign Up</Link>
             </nav>
-            <div className="mr-10">
-                <div className="text-center">ksmakov@gmail.com</div>
-                <div className="flex flex-row items-center justify-between">
-                    <Link to="/profile">profile</Link>
-                    <Link to="/logout">logout</Link>
-                </div>
-            </div>
+            {
+                username
+                    ? <div className="w-48 mr-10">
+                        <div className="font-medium">{username}</div>
+                        <div className="flex flex-row items-center justify-between underline">
+                            <Link to="/profile">profile</Link>
+                            <Link to="/logout">logout</Link>
+                        </div>
+                    </div>
+                    : null
+            }
         </div>
     );
 }

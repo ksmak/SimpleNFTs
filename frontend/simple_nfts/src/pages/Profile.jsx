@@ -1,72 +1,74 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "../components/Layout/Layout";
 import Button from "../components/UI/Button";
 import Field from "../components/UI/Field";
 import Form from "../components/UI/Form";
-import Error from "../components/UI/Error";
+import ErrorMessage from "../components/UI/ErrorMessage";
+import SuccessMessage from "../components/UI/SuccesMessage";
+import api from "../api/index";
 
 const Profile = () => {
-    const [userId, setUserId] = useState();
-    const [token, setToken] = useState(null);
-    const [user, setUser] = useState(null);
+    const [inputs, setInputs] = useState();
     const [error, setError] = useState();
+    const [success, setSuccess] = useState();
 
     const handleChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
-        setUser(values => ({ ...values, [name]: value }))
+        setInputs(values => ({ ...values, [name]: value }))
     };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        api.simpleClient.setProfile(inputs)
+            .then(resp => {
+                setSuccess(resp.data.result);
+            })
+            .catch(err => {
+                setError(err.data.result);
+            })
 
-        const data = {
-            id: userId,
-            token: token,
-            user: user
-        }
-
-        const response = await fetch(`${process.env.FRONTEND_HOST}/api/user/profile`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-
-        if (!response.ok) {
-            setError('Error! Profile not saved.');
-        }
     };
+
+    useEffect(() => {
+        api.simpleClient.getProfile()
+            .then(resp => {
+                console.log(resp);
+                setInputs(resp.data.result);
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }, [])
 
     return (
         <Layout>
             <Form onSubmit={handleSubmit}>
-                <Field 
-                    fieldtype="email"
-                    fieldname="email"
-                    labelname="Email"
-                    value={user && user.email ? user.email : null}
+                <Field
+                    label="First name"
+                    type="text"
+                    name="first_name"
+                    value={inputs && inputs.first_name ? inputs.first_name : null}
+                    required="required"
+                    onChange={handleChange}
                 />
-                <Field 
-                    fieldtype="text"
-                    fieldname="first_name"
-                    labelname="First name"
-                    value={user && user.first_name ? user.first_name : null}
-                />
-                <Field 
-                    fieldtype="text"
-                    fieldname="last_name"
-                    labelname="Last name"
-                    value={user && user.last_name ? user.last_name : null}
+                <Field
+                    label="Last name"
+                    type="text"
+                    name="last_name"
+                    value={inputs && inputs.last_name ? inputs.last_name : null}
+                    required="required"
+                    onChange={handleChange}
                 />
                 <div className="p-5 flex justify-center">
                     <Button type="Submit">Save</Button>
                 </div>
-                <Error>
+                <ErrorMessage>
                     {error}
-                </Error>
+                </ErrorMessage>
+                <SuccessMessage>
+                    {success}
+                </SuccessMessage>
             </Form>
         </Layout>
     );
