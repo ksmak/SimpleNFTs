@@ -1,6 +1,6 @@
-const Image = ({...props}) => {
+const Image = ({ ...props }) => {
     return (
-        <img {...props} className="w-full h-full object-cover" />
+        <img {...props} className="w-full h-full object-fill" alt="preview" />
     );
 }
 

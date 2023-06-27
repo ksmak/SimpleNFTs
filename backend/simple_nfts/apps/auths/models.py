@@ -79,6 +79,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         auto_now=True
     )
 
+    @property
+    def full_name(self):
+        if (self.first_name or self.last_name):
+            return f"{self.first_name} {self.last_name}".strip()
+
+        return self.username
+
     USERNAME_FIELD = 'username'
 
     REQUIRED_FIELDS = []

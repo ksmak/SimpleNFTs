@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/Layout";
 import Button from "../components/UI/Button";
 import Field from "../components/UI/Field";
@@ -8,6 +9,8 @@ import SuccessMessage from "../components/UI/SuccesMessage";
 import api from "../api/index";
 
 const Profile = () => {
+    const navigate = useNavigate();
+
     const [inputs, setInputs] = useState();
     const [error, setError] = useState();
     const [success, setSuccess] = useState();
@@ -62,6 +65,7 @@ const Profile = () => {
                 />
                 <div className="p-5 flex justify-center">
                     <Button type="Submit">Save</Button>
+                    <Button onClick={() => navigate('/')}>Close</Button>
                 </div>
                 <ErrorMessage>
                     {error}

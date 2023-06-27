@@ -4,7 +4,8 @@ import Layout from "../components/Layout/Layout";
 import Button from "../components/UI/Button"
 import Form from "../components/UI/Form";
 import ErrorMessage from "../components/UI/ErrorMessage";
-import { getUser, login, getPublicAddress } from '../api/metamask/index'
+import { getUser, login, getPublicAddress } from '../api/metamask/index';
+import Web3 from "web3";
 
 const SignIn = () => {
     const navigate = useNavigate();
@@ -17,7 +18,7 @@ const SignIn = () => {
             .then(resp => {
                 console.log(resp);
                 sessionStorage.setItem('username', resp.data.user.username);
-                sessionStorage.setItem('public_address', publicAddress);
+                sessionStorage.setItem('public_address', Web3.utils.toChecksumAddress(publicAddress));
                 login(resp.data.nonce, resp.data.public_address)
                     .then(resp => {
                         console.log(resp);

@@ -1,8 +1,8 @@
-import logo from '../../logo.svg';
+import logo from '../../logo.png';
 
 const Logo = () => {
     return (
-        <img src={logo} className="w-20" alt="logo" />
+        <img src={logo} className="h-20 object-cover" alt="logo" />
     )
 }
 

@@ -32,4 +32,11 @@ const getPublicAddress = async () => {
     return accounts[0];
 }
 
-export { getPublicAddress, createUser, login, getUser }
+const sendTransact = async (params) => {
+    return window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [params]
+    })
+}
+
+export { getPublicAddress, createUser, login, getUser, sendTransact }

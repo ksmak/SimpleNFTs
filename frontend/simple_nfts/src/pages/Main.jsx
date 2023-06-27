@@ -1,34 +1,62 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import Layout from "../components/Layout/Layout";
 import ArtList from "../components/UI/ArtList";
 import Toolbar from "../components/UI/Toolbar";
-import ArtForm from "../components/UI/ArtForm";
 import Button from "../components/UI/Button";
+import { useFilterArts } from "../components/hooks/useFilterArts";
+import { getWeb3, getContract } from '../api/contract/index';
+import { setArts } from "../components/slices/simpleArtsSlice";
 
 const Main = () => {
-    const [art, setArt] = useState(null);
-    const arts = [
-        { id: 1, status: 1, uri: 'http://127.0.0.1:8000/media/1.png', owner: '0xpublic_address1', price: 1000000000000000000, date_of_creation: '19.06.2023 00:01:01', title: 'Art 1' },
-        { id: 2, status: 1, uri: 'http://127.0.0.1:8000/media/2.png', owner: '0xpublic_address2', price: 1000000000000000000, date_of_creation: '19.06.2023 00:01:01', title: 'Art 2' },
-        { id: 3, status: 1, uri: 'http://127.0.0.1:8000/media/3.png', owner: '0xpublic_address3', price: 1000000000000000000, date_of_creation: '19.06.2023 00:01:01', title: 'Art 3' },
-        { id: 4, status: 1, uri: 'http://127.0.0.1:8000/media/4.png', owner: '0xpublic_address4', price: 1000000000000000000, date_of_creation: '19.06.2023 00:01:01', title: 'Art 4' },
-        { id: 5, status: 1, uri: 'http://127.0.0.1:8000/media/5.png', owner: '0xpublic_address5', price: 1000000000000000000, date_of_creation: '19.06.2023 00:01:01', title: 'Art 5' },
-    ];
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const [username, setUsername] = useState();
+    const [publicAddress, setPublicAddress] = useState();
+    const [filter, setFilter] = useState(null);
+    const arts = useSelector(state => state.simpleArts.arts);
+
+    const filterArts = useFilterArts(arts, filter);
+
+    useEffect(() => {
+        setPublicAddress(sessionStorage.getItem('public_address'));
+        setUsername(sessionStorage.getItem('username'));
+
+        const initWeb3 = async () => {
+            const web3 = await getWeb3();
+            const contract = await getContract(web3);
+            await contract.methods.getAllArts().call({
+                from: web3.utils.toChecksumAddress(process.env.REACT_APP_OWNER_ADDRESS)
+            })
+                .then(result => {
+                    dispatch(setArts(result));
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+        }
+        initWeb3();
+        // eslint-disable-next-line
+    }, []);
 
     return (
         <Layout>
-            {
-                art === null
-                    ? <div>
-                        <ArtList items={arts} setItem={(art) => setArt(art)} />
+            {username
+                ? <Toolbar>
+                    <div className="w-full flex flex-row items-center justify-between">
+                        <div>
+                            <span onClick={() => setFilter(null)} className={["text-xl mr-12 text-blue-900 hover: cursor-pointer", (filter === null ? "underline" : "")].join(' ')}>All</span>
+                            <span onClick={() => setFilter(publicAddress)} className={["text-xl mr-12 text-blue-900 hover: cursor-pointer", (filter !== null ? "underline" : "")].join(' ')}>Your arts</span>
+                        </div>
+                        <Button onClick={() => navigate('/item', { state: { isNew: true } })}>Create new Art</Button>
                     </div>
-                    : <div>
-                        <Toolbar>
-                            <Button onClick={() => setArt(null)}>Back</Button>
-                        </Toolbar>
-                        <ArtForm item={art} />
-                    </div>
-            }
+                </Toolbar>
+                : ""}
+
+            <ArtList items={filterArts} />
         </Layout>
     );
 };

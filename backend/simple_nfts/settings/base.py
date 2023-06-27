@@ -77,10 +77,10 @@ DATABASES = {
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', }, # noqa
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',}, # noqa
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',}, # noqa
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',}, # noqa
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },  # noqa
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },  # noqa
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },  # noqa
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },  # noqa
 ]
 
 LANGUAGE_CODE = 'ru'
@@ -91,13 +91,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-AUTH_USER_MODEL='auths.CustomUser'
+AUTH_USER_MODEL = 'auths.CustomUser'
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media_files')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -154,23 +154,13 @@ SHELL_PLUS_MODEL_ALIASES = {
         'CustomUser': 'U'
     },
     'main': {
-        'Transaction': 'T',
-        'PublicNFT': 'N'
+        'Art': 'A',
     }
 }
 
-# Email
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = 587
-
-# NFT
+# Etherium
 ETH_NETWORK = os.getenv('ETH_NETWORK')
 ETH_CONTRACT_FILE = os.getenv('ETH_CONTRACT_FILE')
 ETH_CONTRACT_ADDRESS = os.getenv('ETH_CONTRACT_ADDRESS')
 ETH_ACCOUNT_ADDRESS = os.getenv('ETH_ACCOUNT_ADDRESS')
 ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
-

@@ -1,8 +1,8 @@
-const Price = ({price}) => {
+const Price = ({ children }) => {
     return (
-        <span className="font-bold text-amber-700">
-            {price} WEI
-        </span>
+        <div className="font-bold text-amber-700">
+            {children}
+        </div>
     );
 }
 

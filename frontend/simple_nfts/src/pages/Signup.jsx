@@ -6,6 +6,7 @@ import Field from "../components/UI/Field";
 import Form from "../components/UI/Form";
 import ErrorMessage from "../components/UI/ErrorMessage";
 import { createUser, getPublicAddress, getUser, login } from "../api/metamask";
+import Web3 from "web3";
 
 
 const SignUp = () => {
@@ -32,6 +33,7 @@ const SignUp = () => {
                     .then(resp => {
                         console.log(resp);
                         sessionStorage.setItem('username', resp.data.user.username);
+                        sessionStorage.setItem('public_address', Web3.utils.toChecksumAddress(publicAddress));
                         login(resp.data.nonce, resp.data.public_address)
                             .then(resp => {
                                 console.log(resp);

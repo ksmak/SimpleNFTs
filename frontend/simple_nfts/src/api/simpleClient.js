@@ -1,5 +1,14 @@
 const simpleClient = (instance) => {
     return {
+        getByAddress(address) {
+            return instance({
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                url: `/api/users/get_by_address?address=${address}`
+            })
+        },
         getProfile() {
             return instance({
                 method: 'GET',
@@ -25,10 +34,29 @@ const simpleClient = (instance) => {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },
-                url: `/api/arts/create_art/`,
+                url: `/api/arts/`,
                 data: formData
             })
-        }
+        },
+        getArt(id) {
+            return instance({
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                url: `/api/arts/${id}/`
+            })
+        },
+        buyArt(params) {
+            return instance({
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                url: `/api/buy-art/`,
+                data: params
+            })
+        },
     }
 }
 

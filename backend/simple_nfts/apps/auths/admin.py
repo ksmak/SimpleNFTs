@@ -13,7 +13,9 @@ class CustomUserAdmin(UserAdmin):
         'last_name',
         'is_active',
     )
+
     list_filter = ('username', )
+
     add_fieldsets = (
         (None, {
             'classes': ('wide', ),
@@ -28,10 +30,11 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('is_active', 'is_staff', 'is_superuser')
         })
     )
+
     fieldsets = (
         (None, {
             'classes': ('wide', ),
-            'fields': ('username', )
+            'fields': ('username', 'password')
         }),
         ('Personal info', {
             'classes': ('wide', ),
@@ -46,11 +49,14 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('date_of_creation', 'date_of_change')
         })
     )
+
     readonly_fields = (
         'date_of_creation', 'date_of_change',
         'is_superuser', 'is_staff'
     )
+
     search_fields = ('username', )
+
     ordering = ('username', )
 
 

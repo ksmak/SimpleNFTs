@@ -5,12 +5,10 @@ from django.conf.urls.static import static
 
 from rest_framework.routers import SimpleRouter
 
-from rest_framework_simplejwt.views import (
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from auths.views import UserViewSet
-from main.views import ArtViewSet
+from main.views import ArtViewSet, BuyArtView
 
 router = SimpleRouter()
 
@@ -23,7 +21,8 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
     path('metamask/', include('metaMaskAuth.urls')),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/refresh/', TokenRefreshView.as_view()),
+    path('api/buy-art/', BuyArtView.as_view()),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
