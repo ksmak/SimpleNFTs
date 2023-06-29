@@ -1,14 +1,5 @@
 const simpleClient = (instance) => {
     return {
-        getByAddress(address) {
-            return instance({
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                url: `/api/users/get_by_address?address=${address}`
-            })
-        },
         getProfile() {
             return instance({
                 method: 'GET',

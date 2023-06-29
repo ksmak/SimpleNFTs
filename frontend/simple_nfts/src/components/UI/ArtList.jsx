@@ -18,7 +18,7 @@ const ArtList = ({ items }) => {
                     ? items.map(item => {
                         return (<ArtItem key={item.id} item={item} onClick={() => handleClick(item)}>
                             <SmallImage src={item.uri} alt={item.title} />
-                            <div className="self-center truncate">{item.title}</div>
+                            <p className="w-56 truncate">{item.title}</p>
                             <Price>{Web3.utils.fromWei(parseInt(item.price), 'ether')} ETH</Price>
                         </ArtItem>)
                     })

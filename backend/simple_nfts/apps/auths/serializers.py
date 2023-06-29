@@ -8,9 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
     """
         Serializer for user model
     """
-    id = serializers.IntegerField(read_only=True)
     username = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'full_name']
+        fields = ['username', 'first_name', 'last_name', 'full_name']

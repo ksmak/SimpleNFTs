@@ -3,10 +3,8 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework.viewsets import ViewSet
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
-
-from web3 import Web3
 
 from abstracts.mixins import ResponseMixin, ErrorMixin
 
@@ -23,7 +21,11 @@ class UserViewSet(ViewSet, ResponseMixin, ErrorMixin):
 
     permission_classes = (IsAuthenticated, )
 
-    @action(methods=('GET', ), detail=False)
+    @action(
+        methods=('GET', ),
+        detail=False,
+        permission_classes=(AllowAny, )
+    )
     def get_by_address(self, request):
         address = request.query_params['address']
 
@@ -32,7 +34,8 @@ class UserViewSet(ViewSet, ResponseMixin, ErrorMixin):
                 'No address',
                 status.HTTP_400_BAD_REQUEST
             )
-        user = User.objects.filter(wallet__public_address=address).first()
+        user = User.objects.filter(
+            wallet__public_address__contains=address).first()
 
         if not user:
             return self.get_json_error(

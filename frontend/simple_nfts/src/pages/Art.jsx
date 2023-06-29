@@ -13,6 +13,7 @@ import Modal from "../components/UI/Modal";
 import SuccessMessage from "../components/UI/SuccesMessage";
 import { setArtItem, addArtItem, deleteArtItem } from "../components/slices/simpleArtsSlice";
 import Web3 from "web3";
+import axios from "axios";
 
 const Art = () => {
     const navigate = useNavigate();
@@ -30,6 +31,8 @@ const Art = () => {
     const [modalResale, setModalResale] = useState(false);
     const [modalCancelSale, setModalCancelSale] = useState(false);
     const [modalRemove, setModalRemove] = useState(false);
+    const [author, setAuthor] = useState('');
+    const [owner, setOwner] = useState('');
 
     const handleChange = (e) => {
         setError(null);
@@ -185,6 +188,12 @@ const Art = () => {
             });
     }
 
+    const formatDateTime = (num) => {
+        let dt = (new Date(num * 1000)).toLocaleDateString("ru-RU");
+        let tm = (new Date(num * 1000)).toLocaleTimeString("ru-RU");
+        return dt + ' ' + tm;
+    }
+
     useEffect(() => {
         setPublicAddress(sessionStorage.getItem('public_address'));
     }, [])
@@ -192,6 +201,7 @@ const Art = () => {
     useEffect(() => {
         if (item) {
             let obj = {};
+            obj['id'] = parseInt(item.id);
             obj['status'] = parseInt(item.status);
             obj['title'] = item.title;
             obj['description'] = item.description;
@@ -200,38 +210,50 @@ const Art = () => {
             obj['price'] = Web3.utils.fromWei(parseInt(item.price), 'ether');
             setFile(item.uri);
             obj['image_uri'] = item.uri;
-            obj['date_of_creation'] = parseInt(item.date_of_creation);
-            obj['date_of_change'] = parseInt(item.date_of_change);
+            if (item.date_of_creation) {
+                obj['date_of_creation'] = formatDateTime(parseInt(item.date_of_creation));
+            }
+            if (item.date_of_change) {
+                obj['date_of_change'] = formatDateTime(parseInt(item.date_of_change));
+            }
             setInputs(obj);
         }
-    }, [item])
 
-    useEffect(() => {
-        if (inputs && inputs.author) {
-            api.simpleClient.getByAddress(inputs.author)
+        if (item && item.author) {
+            axios({
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                url: `${process.env.REACT_APP_HOST_API}/api/users/get_by_address?address=${item.author}`,
+            })
                 .then(resp => {
-                    console.log(resp);
                     if (resp.status === 200) {
-                        setInputs({ ...inputs, display_author: resp.data.result });
+                        setAuthor(resp.data.result.full_name);
                     }
                 })
                 .catch(err => {
                     console.log(err);
                 })
         }
-        if (inputs && inputs.owner) {
-            api.simpleClient.getByAddress(inputs.owner)
+        if (item && item.owner) {
+            axios({
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                url: `${process.env.REACT_APP_HOST_API}/api/users/get_by_address?address=${item.owner}`,
+            })
                 .then(resp => {
-                    console.log(resp);
                     if (resp.status === 200) {
-                        setInputs({ ...inputs, display_owner: resp.data.result });
+                        setOwner(resp.data.result.full_name);
                     }
                 })
                 .catch(err => {
                     console.log(err);
                 })
         }
-    }, [inputs])
+    }, [item])
 
 
     return (
@@ -310,8 +332,8 @@ const Art = () => {
                     <Button onClick={() => navigate('/')}>Close</Button>
                 </div>
             </Toolbar>
-            <div className="ml-5 flex flex-row items-center">
-                <div className="mt-10 w-1/3 border-2 rounded-md shadow-md shadow-gray-500 bg-white">
+            <div className="ml-5 flex flex-row">
+                <div className="mt-5 w-1/3 border-2 rounded-md shadow-md shadow-gray-500 bg-white">
                     <a href={file}><Image src={file} alt="preview" /></a>
                 </div>
                 <Form>
@@ -321,7 +343,13 @@ const Art = () => {
                         </div>
                         : null
                     }
-
+                    <Field
+                        label="Token ID"
+                        type="text"
+                        name="id"
+                        value={inputs && inputs.id ? inputs.id : ''}
+                        disabled="disabled"
+                    />
                     {isNew
                         ? <Field
                             label="File"
@@ -364,7 +392,7 @@ const Art = () => {
                         label="Date of creation"
                         type="text"
                         name="date_of_creation"
-                        value={inputs && inputs.date_of_creation ? (new Date(inputs.date_of_creation * 1000)).toUTCString() : ''}
+                        value={inputs && inputs.date_of_creation ? inputs.date_of_creation : ''}
                         required="required"
                         onChange={handleChange}
                         disabled="disabled"
@@ -373,7 +401,7 @@ const Art = () => {
                         label="Date of change"
                         type="text"
                         name="date_of_creation"
-                        value={inputs && inputs.date_of_change ? (new Date(inputs.date_of_change * 1000)).toUTCString() : ''}
+                        value={inputs && inputs.date_of_change ? inputs.date_of_change : ''}
                         required="required"
                         onChange={handleChange}
                         disabled="disabled"
@@ -382,14 +410,14 @@ const Art = () => {
                         label="Author"
                         type="text"
                         name="author"
-                        value={inputs && inputs.display_author ? inputs.display_author : ''}
+                        value={author}
                         disabled="disabled"
                     />
                     <Field
                         label="Owner"
                         type="text"
                         name="author"
-                        value={inputs && inputs.display_owner ? inputs.display_owner : ''}
+                        value={owner}
                         disabled="disabled"
                     />
                 </Form>
