@@ -6,7 +6,8 @@ const simpleClient = (instance) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                url: `/api/users/get_self/`
+                url: `/api/users/get_self/`,
+                withCredentials: true,
             })
         },
         setProfile(data) {
@@ -29,13 +30,15 @@ const simpleClient = (instance) => {
                 data: formData
             })
         },
-        getArt(id) {
+        deleteArt(data) {
             return instance({
-                method: 'GET',
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
+                    withCredentials: true
                 },
-                url: `/api/arts/${id}/`
+                url: `/api/arts/delete_by_image/`,
+                data: data,
             })
         },
         buyArt(params) {

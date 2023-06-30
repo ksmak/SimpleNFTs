@@ -6,6 +6,7 @@ import Field from "../components/UI/Field";
 import Form from "../components/UI/Form";
 import ErrorMessage from "../components/UI/ErrorMessage";
 import SuccessMessage from "../components/UI/SuccesMessage";
+import Modal from "../components/UI/Modal";
 import api from "../api/index";
 
 const Profile = () => {
@@ -14,6 +15,7 @@ const Profile = () => {
     const [inputs, setInputs] = useState();
     const [error, setError] = useState();
     const [success, setSuccess] = useState();
+    const [modalError, setModalError] = useState(false);
 
     const handleChange = (event) => {
         const name = event.target.name;
@@ -36,7 +38,6 @@ const Profile = () => {
     useEffect(() => {
         api.simpleClient.getProfile()
             .then(resp => {
-                console.log(resp);
                 setInputs(resp.data.result);
             })
             .catch(err => {
@@ -46,12 +47,23 @@ const Profile = () => {
 
     return (
         <Layout>
+            <Modal visible={modalError} setVisible={setModalError}>
+                <div className="w-96">
+                    <div className="text-red-500 text-center">Error!</div>
+                    <ErrorMessage>
+                        {error}
+                    </ErrorMessage>
+                    <div className="text-center">
+                        <Button onClick={() => setModalError(false)}>Close</Button>
+                    </div>
+                </div>
+            </Modal>
             <Form onSubmit={handleSubmit}>
                 <Field
                     label="First name"
                     type="text"
                     name="first_name"
-                    value={inputs && inputs.first_name ? inputs.first_name : null}
+                    value={inputs && inputs.first_name ? inputs.first_name : ''}
                     required="required"
                     onChange={handleChange}
                 />
@@ -59,17 +71,14 @@ const Profile = () => {
                     label="Last name"
                     type="text"
                     name="last_name"
-                    value={inputs && inputs.last_name ? inputs.last_name : null}
+                    value={inputs && inputs.last_name ? inputs.last_name : ''}
                     required="required"
                     onChange={handleChange}
                 />
                 <div className="p-5 flex justify-center">
                     <Button type="Submit">Save</Button>
-                    <Button onClick={() => navigate('/')}>Close</Button>
+                    <Button type="button" onClick={() => navigate('/')}>Close</Button>
                 </div>
-                <ErrorMessage>
-                    {error}
-                </ErrorMessage>
                 <SuccessMessage>
                     {success}
                 </SuccessMessage>

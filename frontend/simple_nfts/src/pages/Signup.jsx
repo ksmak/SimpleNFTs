@@ -7,6 +7,8 @@ import Form from "../components/UI/Form";
 import ErrorMessage from "../components/UI/ErrorMessage";
 import { createUser, getPublicAddress, getUser, login } from "../api/metamask";
 import Web3 from "web3";
+import Modal from "../components/UI/Modal";
+import { setCookie } from "../utils/cookie_helper";
 
 
 const SignUp = () => {
@@ -14,6 +16,7 @@ const SignUp = () => {
 
     const [inputs, setInputs] = useState({});
     const [error, setError] = useState(null);
+    const [modalError, setModalError] = useState(false);
 
     const handleChange = (event) => {
         const name = event.target.name;
@@ -31,24 +34,24 @@ const SignUp = () => {
                 console.log(resp);
                 getUser(publicAddress)
                     .then(resp => {
-                        console.log(resp);
                         sessionStorage.setItem('username', resp.data.user.username);
                         sessionStorage.setItem('public_address', Web3.utils.toChecksumAddress(publicAddress));
                         login(resp.data.nonce, resp.data.public_address)
                             .then(resp => {
-                                console.log(resp);
-                                sessionStorage.setItem('access', resp.data.access);
-                                sessionStorage.setItem('refresh', resp.data.refresh);
+                                setCookie('access_token', resp.data.access, process.env.REACT_APP_ACCESS_TOKEN_LIFETIME);
+                                setCookie('refresh_token', resp.data.refresh, process.env.REACT_APP_REFRESH_TOKEN_LIFETIME);
                                 navigate('/');
                             })
                             .catch(err => {
                                 console.log(err);
                                 setError('Error!');
+                                setModalError(true);
                             })
                     })
                     .catch(err => {
                         console.log(err);
                         setError('Error!');
+                        setModalError(true);
                     })
             })
             .catch(err => {
@@ -62,21 +65,29 @@ const SignUp = () => {
 
     return (
         <Layout>
+            <Modal visible={modalError} setVisible={setModalError}>
+                <div className="w-96">
+                    <div className="text-red-500 text-center">Error!</div>
+                    <ErrorMessage>
+                        {error}
+                    </ErrorMessage>
+                    <div className="text-center">
+                        <Button onClick={() => setModalError(false)}>Close</Button>
+                    </div>
+                </div>
+            </Modal>
             <Form onSubmit={handleSubmit}>
                 <Field
                     label="Username"
                     type="text"
                     name="username"
-                    value={inputs && inputs.username ? inputs.username : null}
+                    value={inputs && inputs.username ? inputs.username : ''}
                     required="required"
                     onChange={handleChange}
                 />
                 <div className="p-5 flex justify-center">
                     <Button type="Submit">Sign Up</Button>
                 </div>
-                <ErrorMessage>
-                    {error}
-                </ErrorMessage>
             </Form>
         </Layout>
     );

@@ -52,4 +52,7 @@ class ArtSerivce:
 
         receipt = self.w3.eth.wait_for_transaction_receipt(txn_hash)
 
-        return None, receipt
+        return None, {
+            'status': receipt.status,
+            'transactionHash': receipt.transactionHash.hex()
+        }

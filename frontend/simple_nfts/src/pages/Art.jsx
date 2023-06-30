@@ -5,21 +5,20 @@ import Form from "../components/UI/Form";
 import Layout from "../components/Layout/Layout";
 import Toolbar from "../components/UI/Toolbar";
 import Button from "../components/UI/Button";
+import SuccessMessage from "../components/UI/SuccesMessage";
 import ErrorMessage from "../components/UI/ErrorMessage";
 import Image from "../components/UI/Image";
-import api from "../api/index";
-import { getWeb3, getContract } from "../api/contract/index";
 import Modal from "../components/UI/Modal";
-import SuccessMessage from "../components/UI/SuccesMessage";
-import { setArtItem, addArtItem, deleteArtItem } from "../components/slices/simpleArtsSlice";
 import Web3 from "web3";
 import axios from "axios";
+import api from "../api/index";
+import { getWeb3, getContract } from "../api/contract/index";
 
 const Art = () => {
     const navigate = useNavigate();
+
     const { state } = useLocation();
     const { isNew, item } = state;
-
     const [file, setFile] = useState();
     const [inputs, setInputs] = useState();
     const [error, setError] = useState();
@@ -46,14 +45,14 @@ const Art = () => {
         setFile(URL.createObjectURL(e.target.files[0]));
     }
 
-    const handleSave = async () => {
+    // Create NFT
+    const handleCreateArt = async () => {
         //upload image
         let formData = new FormData();
         if (inputs.image_url) {
             formData.append('image', inputs.image_url, inputs.image_url.name);
         }
         const result = await api.simpleClient.createArt(formData);
-
         //create nft
         const web3 = await getWeb3();
         const contract = await getContract(web3);
@@ -63,20 +62,19 @@ const Art = () => {
             inputs.title,
             inputs.description).send({ from: publicAddress })
             .then(receipt => {
-                if (parseInt(receipt.status) === 1) {
-                    addArtItem(inputs);
-                    navigate('/');
-                }
+                setSuccess(`Transaction sended.\nStatus:${receipt.status}\n Transaction hash:${receipt.transactionHash}`);
+                setModalSuccess(true);
             })
             .catch((error) => {
                 console.log(error);
                 setError("Error! Not send transaction!");
+                setModalError(true);
             });
     }
 
+    //Buy Art
     const handleBuyArt = async () => {
         setModalConfirm(false);
-
         const web3 = await getWeb3();
         const contract = await getContract(web3);
         await contract.methods.sendMoney(publicAddress).send({
@@ -89,7 +87,6 @@ const Art = () => {
                     tokenId: parseInt(item.id),
                     markup: 0
                 }
-
                 api.simpleClient.buyArt(params)
                     .then(resp => {
                         if (resp.status !== 200) {
@@ -97,11 +94,7 @@ const Art = () => {
                             setModalError(true);
                             return;
                         }
-                        let new_inputs = { ...inputs };
-                        new_inputs.status = 1;
-                        new_inputs.owner = publicAddress;
-                        setArtItem(new_inputs);
-                        setSuccess('Congratulations! You bought this art.');
+                        setSuccess(`Transaction sended.\nStatus:${resp.data.result.status}\n Transaction hash:${resp.data.result.transactionHash}`);
                         setModalSuccess(true);
                     })
                     .catch(err => {
@@ -110,17 +103,15 @@ const Art = () => {
                     })
             })
             .catch((error) => {
-                setError('Error! Error transaction.')
-                setModalError(true)
+                console.log(error);
+                setError('Error! Error transaction.');
+                setModalError(true);
             });
     }
 
-    const handleSuccess = () => {
-        setModalSuccess(false);
-        navigate('/');
-    }
-
+    // Resale Art
     const handleResaleArt = async () => {
+        setModalResale(false);
         //resale nft
         const web3 = await getWeb3();
         const contract = await getContract(web3);
@@ -129,20 +120,19 @@ const Art = () => {
             Web3.utils.toWei(inputs.price, 'ether'),
         ).send({ from: publicAddress })
             .then(receipt => {
-                if (parseInt(receipt.status) === 1) {
-                    setArtItem(inputs);
-                    setModalResale(false);
-                    setSuccess('This art is put up for sale.');
-                    setModalSuccess(true);
-                }
+                setSuccess(`Transaction sended.\nStatus:${receipt.status}\n Transaction hash:${receipt.transactionHash}`);
+                setModalSuccess(true);
             })
             .catch((error) => {
                 console.log(error);
                 setError("Error! Not send transaction!");
+                setModalError(true);
             });
     }
 
+    // Cancel sale Art
     const handleCancelSale = async () => {
+        setModalCancelSale(false);
         //cancel sale nft
         const web3 = await getWeb3();
         const contract = await getContract(web3);
@@ -150,14 +140,8 @@ const Art = () => {
             item.id
         ).send({ from: publicAddress })
             .then(receipt => {
-                if (parseInt(receipt.status) === 1) {
-                    let new_inputs = { ...inputs };
-                    new_inputs.status = 1;
-                    setArtItem(new_inputs);
-                    setModalCancelSale(false);
-                    setSuccess('This art has been cancelled for sale.');
-                    setModalSuccess(true);
-                }
+                setSuccess(`Transaction sended.\nStatus:${receipt.status}\n Transaction hash:${receipt.transactionHash}`);
+                setModalSuccess(true);
             })
             .catch((error) => {
                 console.log(error);
@@ -166,26 +150,34 @@ const Art = () => {
             });
     }
 
+    // Remove Art
     const handleRemove = async () => {
-        //cancel sale nft
+        setModalRemove(false);
+        //remove nft
         const web3 = await getWeb3();
         const contract = await getContract(web3);
         contract.methods.removeArt(
             item.id
         ).send({ from: publicAddress })
             .then(receipt => {
-                if (parseInt(receipt.status) === 1) {
-                    deleteArtItem(inputs);
-                    setModalRemove(false);
-                    setSuccess('This art was destroyed.');
-                    setModalSuccess(true);
-                }
+                let uri = inputs.image_uri.substring(inputs.image_uri.lastIndexOf('/'), inputs.image_uri.length);
+                api.simpleClient.deleteArt({
+                    image_uri: uri
+                })
+                    .catch(err => console.log(err));
+                setSuccess(`Transaction sended.\nStatus:${receipt.status}\n Transaction hash:${receipt.transactionHash}`);
+                setModalSuccess(true);
             })
             .catch((error) => {
                 console.log(error);
                 setError("Error! Not send transaction!");
                 setModalError(true);
             });
+    }
+
+    const handleSuccess = () => {
+        setModalSuccess(false);
+        navigate('/');
     }
 
     const formatDateTime = (num) => {
@@ -255,11 +247,10 @@ const Art = () => {
         }
     }, [item])
 
-
     return (
         <Layout>
             <Modal visible={modalError} setVisible={setModalError}>
-                <div className="w-48">
+                <div className="w-96">
                     <div className="text-red-500 text-center">Error!</div>
                     <ErrorMessage>
                         {error}
@@ -270,7 +261,7 @@ const Art = () => {
                 </div>
             </Modal>
             <Modal visible={modalSuccess} setVisible={setModalSuccess}>
-                <div className="w-48">
+                <div className="w-auto">
                     <SuccessMessage>
                         {success}
                     </SuccessMessage>
@@ -327,7 +318,7 @@ const Art = () => {
                     {!isNew && publicAddress && item && item.owner === publicAddress && parseInt(item.status) !== 0 ? <Button onClick={() => setModalResale(true)}>Ressale art</Button> : ""}
                     {!isNew && publicAddress && item && item.owner === publicAddress && parseInt(item.status) !== 0 ? <Button onClick={() => setModalRemove(true)}>Remove art</Button> : ""}
                     {!isNew && publicAddress && item && item.owner !== publicAddress ? <Button onClick={() => setModalConfirm(true)}>By this art</Button> : ""}
-                    {isNew && publicAddress ? <Button onClick={handleSave}>Save and Close</Button> : ""}
+                    {isNew && publicAddress ? <Button onClick={handleCreateArt}>Save and Close</Button> : ""}
                     {!isNew && publicAddress && item && item.owner === publicAddress && parseInt(item.status) === 0 ? <Button onClick={() => setModalCancelSale(true)}>Cancel the sale</Button> : ""}
                     <Button onClick={() => navigate('/')}>Close</Button>
                 </div>
@@ -347,7 +338,7 @@ const Art = () => {
                         label="Token ID"
                         type="text"
                         name="id"
-                        value={inputs && inputs.id ? inputs.id : ''}
+                        value={inputs && inputs.id !== undefined && inputs.id !== null ? inputs.id : ''}
                         disabled="disabled"
                     />
                     {isNew
@@ -355,7 +346,6 @@ const Art = () => {
                             label="File"
                             type="file"
                             name="image_url"
-                            required="required"
                             accept="image/*"
                             onChange={handleChangeFile}
                         />

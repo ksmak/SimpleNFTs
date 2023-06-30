@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_API_URL = 'http://127.0.0.1:8000/metamask/'
+const BASE_API_URL = `${process.env.REACT_APP_HOST_API}/metamask/`
 
 const createUser = async (username) => {
     const publicAddress = await getPublicAddress();
@@ -19,7 +19,7 @@ const login = async (nonce, publicAddress) => {
         params: [nonce, publicAddress],
     });
 
-    return axios.post(BASE_API_URL + 'login/' + publicAddress, { signature: sign });
+    return axios.post(BASE_API_URL + 'login/' + publicAddress, { signature: sign }, { withCredentials: true });
 }
 
 const getUser = async (publicAddress) => {
