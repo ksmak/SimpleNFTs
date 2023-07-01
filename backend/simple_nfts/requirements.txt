@@ -46,6 +46,7 @@ pickleshare==0.7.5
 Pillow==9.5.0
 prompt-toolkit==3.0.38
 protobuf==3.20.3
+psycopg2-binary==2.9.6
 ptyprocess==0.7.0
 pure-eval==0.2.2
 pycryptodome==3.18.0

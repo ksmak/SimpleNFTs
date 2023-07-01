@@ -185,3 +185,4 @@ yarn-error.log*
 
 mediafiles/
 staticfiles/
+.vscode/

@@ -1,0 +1,7 @@
+.env*
+.elasticbeanstalk/
+.ebextensions/
+mediafiles/
+.vscode/
+Dockerfile
+.dockerignore

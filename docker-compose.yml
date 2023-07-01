@@ -1,0 +1,47 @@
+version: '3.4'
+
+volumes:
+  pg_data:
+
+
+services:
+  simple_nfts_db:
+    container_name: simple_nfts_db
+    image: postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    env_file:
+      - ./backend/simple_nfts/.env.dev.db
+    ports:
+      - 5432:5432
+
+  backend:
+    container_name: simple_nfts_backend
+    build:
+      context: ./backend/simple_nfts
+      dockerfile: DockerFile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend/simple_nfts/:/app/
+    ports:
+      - 8000:8000
+      - 5678:5678
+    env_file:
+      - ./backend/simple_nfts/.env.dev
+    depends_on:
+      - simple_nfts_db
+
+  frontend:
+    container_name: simple_nfts_frontend
+    build:
+      context: ./frontend/simple_nfts
+      dockerfile: DockerFile
+    volumes:
+      - ./frontend/simple_nfts/:/app
+      - /app/node_modules
+    ports:
+      - 3000:3000
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    env_file:
+      - ./frontend/simple_nfts/.env.dev

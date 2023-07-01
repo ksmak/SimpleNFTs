@@ -72,8 +72,12 @@ WSGI_APPLICATION = 'settings.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT'),
     }
 }
 
@@ -161,13 +165,6 @@ SHELL_PLUS_MODEL_ALIASES = {
     }
 }
 
-# Etherium
-ETH_NETWORK = os.getenv('ETH_NETWORK')
-ETH_CONTRACT_FILE = os.getenv('ETH_CONTRACT_FILE')
-ETH_CONTRACT_ADDRESS = os.getenv('ETH_CONTRACT_ADDRESS')
-ETH_ACCOUNT_ADDRESS = os.getenv('ETH_ACCOUNT_ADDRESS')
-ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
-
 # JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -198,3 +195,10 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+# Etherium
+ETH_NETWORK = os.getenv('ETH_NETWORK')
+ETH_CONTRACT_FILE = os.getenv('ETH_CONTRACT_FILE')
+ETH_CONTRACT_ADDRESS = os.getenv('ETH_CONTRACT_ADDRESS')
+ETH_ACCOUNT_ADDRESS = os.getenv('ETH_ACCOUNT_ADDRESS')
+ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
