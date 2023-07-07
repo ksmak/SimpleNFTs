@@ -35,7 +35,7 @@ class UserViewSet(ViewSet, ResponseMixin, ErrorMixin):
                 status.HTTP_400_BAD_REQUEST
             )
         user = User.objects.filter(
-            wallet__public_address__contains=address).first()
+            wallet__public_address__icontains=address).first()
 
         if not user:
             return self.get_json_error(

@@ -16,8 +16,8 @@ const Main = () => {
     const [username, setUsername] = useState();
     const [publicAddress, setPublicAddress] = useState();
     const [filter, setFilter] = useState(null);
-    const arts = useSelector(state => state.simpleArts.arts);
 
+    const arts = useSelector(state => state.simpleArts.arts);
     const filterArts = useFilterArts(arts, filter);
 
     useEffect(() => {
@@ -44,18 +44,18 @@ const Main = () => {
 
     return (
         <Layout>
-            {username
-                ? <Toolbar>
-                    <div className="w-full flex flex-row items-center justify-between">
-                        <div>
-                            <span onClick={() => setFilter(null)} className={["text-xl mr-12 text-blue-900 hover: cursor-pointer", (filter === null ? "underline" : "")].join(' ')}>All</span>
-                            <span onClick={() => setFilter(publicAddress)} className={["text-xl mr-12 text-blue-900 hover: cursor-pointer", (filter !== null ? "underline" : "")].join(' ')}>Your arts</span>
+            {
+                username
+                    ? <Toolbar>
+                        < div className="w-full flex flex-row items-center justify-between">
+                            <div>
+                                <span onClick={() => setFilter(null)} className={["text-xl mr-12 text-blue-900 hover: cursor-pointer", (filter === null ? "underline" : "")].join(' ')}>All</span>
+                                <span onClick={() => setFilter(publicAddress)} className={["text-xl mr-12 text-blue-900 hover: cursor-pointer", (filter !== null ? "underline" : "")].join(' ')}>Your arts</span>
+                            </div>
+                            <Button onClick={() => navigate('/item', { state: { isNew: true } })}>Create new Art</Button>
                         </div>
-                        <Button onClick={() => navigate('/item', { state: { isNew: true } })}>Create new Art</Button>
-                    </div>
-                </Toolbar>
-                : ""}
-
+                    </Toolbar >
+                    : ""}
             <ArtList items={filterArts} />
         </Layout>
     );

@@ -67,7 +67,7 @@ const Art = () => {
             })
             .catch((error) => {
                 console.log(error);
-                setError("Error! Not send transaction!");
+                setError("Not send transaction!");
                 setModalError(true);
             });
     }
@@ -82,29 +82,32 @@ const Art = () => {
             value: Web3.utils.toWei(inputs.price, 'ether')
         })
             .then(receipt => {
-                const params = {
-                    buyer: publicAddress,
-                    tokenId: parseInt(item.id),
-                    markup: 0
-                }
-                api.simpleClient.buyArt(params)
-                    .then(resp => {
-                        if (resp.status !== 200) {
-                            setError(resp.response.data.error);
-                            setModalError(true);
-                            return;
-                        }
-                        setSuccess(`Transaction sended.\nStatus:${resp.data.result.status}\n Transaction hash:${resp.data.result.transactionHash}`);
-                        setModalSuccess(true);
-                    })
-                    .catch(err => {
-                        setError(err.message);
-                        setModalError(true);
-                    })
+                const markup = 0;
+                const ownerAddress = Web3.utils.toChecksumAddress(process.env.REACT_APP_OWNER_ADDRESS);
+                let tx_obj = contract.methods.buyArt(publicAddress, parseInt(item.id), markup);
+                web3.eth.accounts.signTransaction({
+                    'data': tx_obj.encodeABI(),
+                    'from': ownerAddress,
+                    'gas': 200000,
+                    'gasPrice': 20000000000,
+                    'to': contract.options.address
+                }, process.env.REACT_APP_OWNER_PRIVATE_KEY)
+                    .then(signedTx => {
+                        web3.eth.sendSignedTransaction(signedTx.rawTransaction)
+                            .then(receipt => {
+                                setSuccess(`Transaction sended.\nStatus:${receipt.status}\n Transaction hash:${receipt.transactionHash}`);
+                                setModalSuccess(true);
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                                setError("Error! Not send transaction!");
+                                setModalError(true);
+                            });
+                    });
             })
             .catch((error) => {
                 console.log(error);
-                setError('Error! Error transaction.');
+                setError('Error transaction.');
                 setModalError(true);
             });
     }

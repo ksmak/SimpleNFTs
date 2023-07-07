@@ -17,7 +17,8 @@ const simpleClient = (instance) => {
                     'Content-Type': 'application/json',
                 },
                 url: `/api/users/update_self/`,
-                data: data
+                data: data,
+                withCredentials: true,
             })
         },
         createArt(formData) {
@@ -27,28 +28,19 @@ const simpleClient = (instance) => {
                     'Content-Type': 'multipart/form-data'
                 },
                 url: `/api/arts/`,
-                data: formData
+                data: formData,
+                withCredentials: true,
             })
         },
         deleteArt(data) {
             return instance({
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
-                    withCredentials: true
+                    'Content-Type': 'application/json'
                 },
                 url: `/api/arts/delete_by_image/`,
                 data: data,
-            })
-        },
-        buyArt(params) {
-            return instance({
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                url: `/api/buy-art/`,
-                data: params
+                withCredentials: true,
             })
         },
     }
